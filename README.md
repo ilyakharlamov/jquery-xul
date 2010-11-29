@@ -1,3 +1,5 @@
+visit our [Wiki](https://github.com/ilyakharlamov/jquery-xul/wiki) for the list of limitations
+
 [jQuery](http://jquery.com/) - New Wave Javascript
 ================================
 
