@@ -4,8 +4,8 @@
 	<property name="PREFIX" value="." />
 	<property description="Folder for jquery and min target" name="dist" value="${PREFIX}/dist" />
 
-	<property name="JQ" value="${dist}/jquery.js" />
-	<property name="JQ_MIN" value="${dist}/jquery.min.js" />
+	<property name="JQ" value="${dist}/jquery-xul.js" />
+	<property name="JQ_MIN" value="${dist}/jquery-xul.min.js" />
 
 	<loadfile property="sizzle-exports" srcfile="src/sizzle-jquery.js" />
 
