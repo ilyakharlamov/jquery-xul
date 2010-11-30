@@ -309,6 +309,7 @@ test("isPlainObject", function() {
 		ok(true, "new otherObject - iframes not supported");
 		start();
 	}*/ 
+	start();
 });
 
 test("isFunction", function() {
