@@ -27,7 +27,7 @@ xmlns:html="http://www.w3.org/1999/xhtml"
 	<script src="data/testrunner.js"></script>
 
 	<script src="unit/core.js"></script>
-<!--	<script src="unit/data.js"></script>
+	<script src="unit/data.js"></script>
 	<script src="unit/queue.js"></script>
 	<script src="unit/attributes.js"></script>
 	<script src="unit/event.js"></script>
@@ -38,7 +38,7 @@ xmlns:html="http://www.w3.org/1999/xhtml"
 	<script src="unit/ajax.js"></script>
 	<script src="unit/effects.js"></script>
 	<script src="unit/offset.js"></script>
-	<script src="unit/dimensions.js"></script>-->
+	<script src="unit/dimensions.js"></script>
 
 
     <script type="application/x-javascript">
