@@ -86,7 +86,7 @@
 		<echo message="Building ${JQ_MIN}" />
 		<apply executable="java" parallel="false" verbose="true" dest="${dist}">
 			<fileset dir="${dist}">
-				<include name="jquery.js" />
+				<include name="jquery-xul.js" />
 			</fileset>
 			<arg line="-jar" />
 			<arg path="build/google-compiler-20100917.jar" />
@@ -95,7 +95,7 @@
 			<arg value="--js_output_file" />
 			<targetfile />
 			<arg value="--js" />
-			<mapper type="glob" from="jquery.js" to="tmpmin" />
+			<mapper type="glob" from="jquery-xul.js" to="tmpmin" />
 		</apply>
 		<concat destfile="${JQ_MIN}">
 			<filelist files="${JQ}, ${dist}/tmpmin" />

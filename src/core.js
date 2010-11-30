@@ -128,7 +128,7 @@ jQuery.fn = jQuery.prototype = {
 						}
 
 					} else {
-						ret = jQuery.buildFragment( [ match[1] ], [ doc ] );
+                        ret = jQuery.buildFragment( [ match[1] ], [ doc ] );
 						selector = (ret.cacheable ? ret.fragment.cloneNode(true) : ret.fragment).childNodes;
 					}
 					
@@ -375,6 +375,17 @@ jQuery.extend = jQuery.fn.extend = function() {
 };
 
 jQuery.extend({
+    // xul-specific functions
+    isxul: function(){
+        return !!document.getElementsByAttribute;
+    },
+    deserialize: function(string){
+        var parser=new DOMParser();
+        var xmldoc=parser.parseFromString(string,"text/xml");
+        if (xmldoc.childNodes.length)
+        	return xmldoc.childNodes[0];
+    },
+
 	noConflict: function( deep ) {
 		window.$ = _$;
 
@@ -402,7 +413,7 @@ jQuery.extend({
 		// Make sure that the DOM is not already loaded
 		if ( !jQuery.readyWait || (wait !== true && !jQuery.isReady) ) {
 			// Make sure body exists, at least, in case IE gets a little overzealous (ticket #5443).
-			if ( !document.body ) {
+			if ( !document.body && ! document.activeElement) {
 				return setTimeout( jQuery.ready, 1 );
 			}
 

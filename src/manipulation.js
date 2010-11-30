@@ -415,7 +415,6 @@ jQuery.buildFragment = function( args, nodes, scripts ) {
 			}
 		}
 	}
-
 	if ( !fragment ) {
 		fragment = doc.createDocumentFragment();
 		jQuery.clean( args, doc, fragment, scripts );
@@ -489,11 +488,15 @@ jQuery.extend({
 				// Trim whitespace, otherwise indexOf won't work as expected
 				var tag = (rtagName.exec( elem ) || ["", ""])[1].toLowerCase(),
 					wrap = wrapMap[ tag ] || wrapMap._default,
-					depth = wrap[0],
-					div = context.createElement("div");
+					depth = wrap[0], div;
 
-				// Go to html and back, then peel off extra wrappers
-				div.innerHTML = wrap[1] + elem + wrap[2];
+                if (jQuery.isxul()){
+                    div = jQuery.deserialize("<box>"+wrap[1]+elem+wrap[2]+"</box>");
+                }else{
+					div = context.createElement("div");
+    				// Go to html and back, then peel off extra wrappers
+    				div.innerHTML = wrap[1] + elem + wrap[2];
+                }
 
 				// Move to the right depth
 				while ( depth-- ) {
@@ -527,13 +530,16 @@ jQuery.extend({
 				}
 
 				elem = div.childNodes;
+
 			}
+
 
 			if ( elem.nodeType ) {
 				ret.push( elem );
 			} else {
 				ret = jQuery.merge( ret, elem );
 			}
+
 		}
 
 		if ( fragment ) {
