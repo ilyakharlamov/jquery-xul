@@ -811,12 +811,12 @@ test("jQuery.each(Object,Function)", function() {
 test("jQuery.makeArray", function(){
 	expect(17);
 
-    if (jQuery.isxul())
+    if (jQuery.isXul())
     	equals( jQuery.makeArray(jQuery('box>*'))[0].nodeName.toUpperCase(), "HEAD", "Pass makeArray a jQuery object (xul)" );    
     else
     	equals( jQuery.makeArray(jQuery('html>*'))[0].nodeName.toUpperCase(), "HEAD", "Pass makeArray a jQuery object" );    
 
-    if (jQuery.isxul())
+    if (jQuery.isXul())
     	equals( jQuery.makeArray(document.getElementsByAttribute("name","PWD")).slice(0,1)[0].name, "PWD", "Pass makeArray a nodelist (xul)" );
     else
     	equals( jQuery.makeArray(document.getElementsByName("PWD")).slice(0,1)[0].name, "PWD", "Pass makeArray a nodelist" );

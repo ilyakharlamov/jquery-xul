@@ -179,6 +179,17 @@ test("wrapInner(Function)", function() {
 	testWrapInner(functionReturningObj)
 });
 
+var testXulAppend = function(val) {
+    expect(1);
+    jQuery("#box").append("<label name='aaa'/>");
+    equals(jQuery("#box"),"fu");
+}
+test("testXulAppend(Function)", function() {
+	testXulAppend();
+});
+
+
+
 test("unwrap()", function() {
 	expect(9);
 

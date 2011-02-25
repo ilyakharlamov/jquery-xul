@@ -376,14 +376,8 @@ jQuery.extend = jQuery.fn.extend = function() {
 
 jQuery.extend({
     // xul-specific functions
-    isxul: function(){
+    isXul: function(){
         return !!document.getElementsByAttribute;
-    },
-    deserialize: function(string){
-        var parser=new DOMParser();
-        var xmldoc=parser.parseFromString(string,"text/xml");
-        if (xmldoc.childNodes.length)
-        	return xmldoc.childNodes[0];
     },
 
 	noConflict: function( deep ) {

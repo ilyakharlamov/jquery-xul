@@ -468,6 +468,14 @@ jQuery.extend({
 
 		var ret = [];
 
+        var createxul = function(string){
+            var parser=new DOMParser();
+            var xmldoc=parser.parseFromString("<root xmlns=\"http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul\">"+string+"</root>","text/xml");
+            if (xmldoc.childNodes.length) {
+                return xmldoc.childNodes[0];
+            }
+        };
+
 		for ( var i = 0, elem; (elem = elems[i]) != null; i++ ) {
 			if ( typeof elem === "number" ) {
 				elem += "";
@@ -490,12 +498,12 @@ jQuery.extend({
 					wrap = wrapMap[ tag ] || wrapMap._default,
 					depth = wrap[0], div;
 
-                if (jQuery.isxul()){
-                    div = jQuery.deserialize("<box>"+wrap[1]+elem+wrap[2]+"</box>");
-                }else{
+                if (jQuery.isXul()) {
+                    div = createxul(wrap[1]+elem+wrap[2]);
+                } else {
 					div = context.createElement("div");
-    				// Go to html and back, then peel off extra wrappers
-    				div.innerHTML = wrap[1] + elem + wrap[2];
+                    // Go to html and back, then peel off extra wrappers
+                    div.innerHTML = wrap[1] + elem + wrap[2];
                 }
 
 				// Move to the right depth
