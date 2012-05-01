@@ -26,9 +26,6 @@ var jQuery = function( selector, context ) {
 	trimLeft = /^\s+/,
 	trimRight = /\s+$/,
 
-	// Check for digits
-	rdigit = /\d/,
-
 	// Match a standalone tag
 	rsingleTag = /^<(\w+)\s*\/?>(?:<\/\1>)?$/,
 
@@ -119,7 +116,7 @@ jQuery.fn = jQuery.prototype = {
 				// HANDLE: $(html) -> $(array)
 				if ( match[1] ) {
 					context = context instanceof jQuery ? context[0] : context;
-					doc = (context ? context.ownerDocument || context : document);
+					doc = ( context ? context.ownerDocument || context : document );
 
 					// If a single string is passed in and it's a single tag
 					// just do a createElement and skip the rest
@@ -136,7 +133,7 @@ jQuery.fn = jQuery.prototype = {
 
 					} else {
 						ret = jQuery.buildFragment( [ match[1] ], [ doc ] );
-						selector = (ret.cacheable ? jQuery.clone(ret.fragment) : ret.fragment).childNodes;
+						selector = ( ret.cacheable ? jQuery.clone(ret.fragment) : ret.fragment ).childNodes;
 					}
 
 					return jQuery.merge( this, selector );
@@ -166,7 +163,7 @@ jQuery.fn = jQuery.prototype = {
 
 			// HANDLE: $(expr, $(...))
 			} else if ( !context || context.jquery ) {
-				return (context || rootjQuery).find( selector );
+				return ( context || rootjQuery ).find( selector );
 
 			// HANDLE: $(expr, context)
 			// (which is just equivalent to: $(context).find(expr)
@@ -180,7 +177,7 @@ jQuery.fn = jQuery.prototype = {
 			return rootjQuery.ready( selector );
 		}
 
-		if (selector.selector !== undefined) {
+		if ( selector.selector !== undefined ) {
 			this.selector = selector.selector;
 			this.context = selector.context;
 		}
@@ -237,7 +234,7 @@ jQuery.fn = jQuery.prototype = {
 		ret.context = this.context;
 
 		if ( name === "find" ) {
-			ret.selector = this.selector + (this.selector ? " " : "") + selector;
+			ret.selector = this.selector + ( this.selector ? " " : "" ) + selector;
 		} else if ( name ) {
 			ret.selector = this.selector + "." + name + "(" + selector + ")";
 		}
@@ -258,15 +255,16 @@ jQuery.fn = jQuery.prototype = {
 		jQuery.bindReady();
 
 		// Add the callback
-		readyList.done( fn );
+		readyList.add( fn );
 
 		return this;
 	},
 
 	eq: function( i ) {
+		i = +i;
 		return i === -1 ?
 			this.slice( i ) :
-			this.slice( i, +i + 1 );
+			this.slice( i, i + 1 );
 	},
 
 	first: function() {
@@ -367,6 +365,7 @@ jQuery.extend = jQuery.fn.extend = function() {
 };
 
 jQuery.extend({
+
     // xul-specific functions
     isXul: function(){
         return !!document.getElementsByAttribute;
@@ -405,7 +404,7 @@ jQuery.extend({
 		// Either a released hold or an DOMready/load event and not yet ready
 		if ( (wait === true && !--jQuery.readyWait) || (wait !== true && !jQuery.isReady) ) {
 			// Make sure body exists, at least, in case IE gets a little overzealous (ticket #5443).
-			if ( !document.body && ! document.activeElement) {
+			if ( !document.body ) {
 				return setTimeout( jQuery.ready, 1 );
 			}
 
@@ -418,11 +417,11 @@ jQuery.extend({
 			}
 
 			// If there are functions bound, to execute
-			readyList.resolveWith( document, [ jQuery ] );
+			readyList.fireWith( document, [ jQuery ] );
 
 			// Trigger any bound ready events
 			if ( jQuery.fn.trigger ) {
-				jQuery( document ).trigger( "ready" ).unbind( "ready" );
+				jQuery( document ).trigger( "ready" ).off( "ready" );
 			}
 		}
 	},
@@ -432,7 +431,7 @@ jQuery.extend({
 			return;
 		}
 
-		readyList = jQuery._Deferred();
+		readyList = jQuery.Callbacks( "once memory" );
 
 		// Catch cases where $(document).ready() is called after the
 		// browser event has already occurred.
@@ -483,13 +482,12 @@ jQuery.extend({
 		return jQuery.type(obj) === "array";
 	},
 
-	// A crude way of determining if an object is a window
 	isWindow: function( obj ) {
-		return obj && typeof obj === "object" && "setInterval" in obj;
+		return obj != null && obj == obj.window;
 	},
 
-	isNaN: function( obj ) {
-		return obj == null || !rdigit.test( obj ) || isNaN( obj );
+	isNumeric: function( obj ) {
+		return !isNaN( parseFloat(obj) ) && isFinite( obj );
 	},
 
 	type: function( obj ) {
@@ -535,7 +533,7 @@ jQuery.extend({
 	},
 
 	error: function( msg ) {
-		throw msg;
+		throw new Error( msg );
 	},
 
 	parseJSON: function( data ) {
@@ -557,7 +555,7 @@ jQuery.extend({
 			.replace( rvalidtokens, "]" )
 			.replace( rvalidbraces, "")) ) {
 
-			return (new Function( "return " + data ))();
+			return ( new Function( "return " + data ) )();
 
 		}
 		jQuery.error( "Invalid JSON: " + data );
@@ -565,6 +563,9 @@ jQuery.extend({
 
 	// Cross-browser xml parsing
 	parseXML: function( data ) {
+		if ( typeof data !== "string" || !data ) {
+			return null;
+		}
 		var xml, tmp;
 		try {
 			if ( window.DOMParser ) { // Standard
@@ -672,8 +673,6 @@ jQuery.extend({
 
 		if ( array != null ) {
 			// The window, strings (and functions) also have 'length'
-			// The extra typeof function check is to prevent crashes
-			// in Safari 2 (See: #3039)
 			// Tweaked logic slightly to handle Blackberry 4.7 RegExp issues #6930
 			var type = jQuery.type( array );
 
@@ -687,18 +686,22 @@ jQuery.extend({
 		return ret;
 	},
 
-	inArray: function( elem, array ) {
-		if ( !array ) {
-			return -1;
-		}
+	inArray: function( elem, array, i ) {
+		var len;
 
-		if ( indexOf ) {
-			return indexOf.call( array, elem );
-		}
+		if ( array ) {
+			if ( indexOf ) {
+				return indexOf.call( array, elem, i );
+			}
 
-		for ( var i = 0, length = array.length; i < length; i++ ) {
-			if ( array[ i ] === elem ) {
-				return i;
+			len = array.length;
+			i = i ? i < 0 ? Math.max( 0, len + i ) : i : 0;
+
+			for ( ; i < len; i++ ) {
+				// Skip accessing in sparse arrays
+				if ( i in array && array[ i ] === elem ) {
+					return i;
+				}
 			}
 		}
 
@@ -804,37 +807,61 @@ jQuery.extend({
 		return proxy;
 	},
 
-	// Mutifunctional method to get and set values to a collection
+	// Multifunctional method to get and set values of a collection
 	// The value/s can optionally be executed if it's a function
-	access: function( elems, key, value, exec, fn, pass ) {
-		var length = elems.length;
+	access: function( elems, fn, key, value, chainable, emptyGet, pass ) {
+		var exec,
+			bulk = key == null,
+			i = 0,
+			length = elems.length;
 
-		// Setting many attributes
-		if ( typeof key === "object" ) {
-			for ( var k in key ) {
-				jQuery.access( elems, k, key[k], exec, fn, value );
+		// Sets many values
+		if ( key && typeof key === "object" ) {
+			for ( i in key ) {
+				jQuery.access( elems, fn, i, key[i], 1, emptyGet, value );
 			}
-			return elems;
-		}
+			chainable = 1;
 
-		// Setting one attribute
-		if ( value !== undefined ) {
+		// Sets one value
+		} else if ( value !== undefined ) {
 			// Optionally, function values get executed if exec is true
-			exec = !pass && exec && jQuery.isFunction(value);
+			exec = pass === undefined && jQuery.isFunction( value );
 
-			for ( var i = 0; i < length; i++ ) {
-				fn( elems[i], key, exec ? value.call( elems[i], i, fn( elems[i], key ) ) : value, pass );
+			if ( bulk ) {
+				// Bulk operations only iterate when executing function values
+				if ( exec ) {
+					exec = fn;
+					fn = function( elem, key, value ) {
+						return exec.call( jQuery( elem ), value );
+					};
+
+				// Otherwise they run against the entire set
+				} else {
+					fn.call( elems, value );
+					fn = null;
+				}
 			}
 
-			return elems;
+			if ( fn ) {
+				for (; i < length; i++ ) {
+					fn( elems[i], key, exec ? value.call( elems[i], i, fn( elems[i], key ) ) : value, pass );
+				}
+			}
+
+			chainable = 1;
 		}
 
-		// Getting an attribute
-		return length ? fn( elems[0], key ) : undefined;
+		return chainable ?
+			elems :
+
+			// Gets
+			bulk ?
+				fn.call( elems ) :
+				length ? fn( elems[0], key ) : emptyGet;
 	},
 
 	now: function() {
-		return (new Date()).getTime();
+		return ( new Date() ).getTime();
 	},
 
 	// Use of jQuery.browser is frowned upon.

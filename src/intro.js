@@ -1,9 +1,6 @@
 /*!
- * jQuery-xul JavaScript Library v@VERSION
- * Updates: http://www.imaitech.com/jquery-xul/
- * Source: https://github.com/ilyakharlamov/jquery-xul/wiki
- *
- * Copyright 2010, Ilya Kharlamov
+ * jQuery JavaScript Library v@VERSION
+ * http://jquery.com/
  *
  * Copyright 2011, John Resig
  * Dual licensed under the MIT or GPL Version 2 licenses.

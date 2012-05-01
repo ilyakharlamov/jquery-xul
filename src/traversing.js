@@ -6,7 +6,7 @@ var runtil = /Until$/,
 	rmultiselector = /,/,
 	isSimple = /^.[^:#\[\.,]*$/,
 	slice = Array.prototype.slice,
-	POS = jQuery.expr.match.POS,
+	POS = jQuery.expr.match.globalPOS,
 	// methods guaranteed to produce a unique set when starting from a unique set
 	guaranteedUnique = {
 		children: true,
@@ -73,43 +73,33 @@ jQuery.fn.extend({
 	},
 
 	is: function( selector ) {
-		return !!selector && ( typeof selector === "string" ?
-			jQuery.filter( selector, this ).length > 0 :
-			this.filter( selector ).length > 0 );
+		return !!selector && (
+			typeof selector === "string" ?
+				// If this is a positional selector, check membership in the returned set
+				// so $("p:first").is("p:last") won't return true for a doc with two "p".
+				POS.test( selector ) ?
+					jQuery( selector, this.context ).index( this[0] ) >= 0 :
+					jQuery.filter( selector, this ).length > 0 :
+				this.filter( selector ).length > 0 );
 	},
 
 	closest: function( selectors, context ) {
 		var ret = [], i, l, cur = this[0];
-		
-		// Array
+
+		// Array (deprecated as of jQuery 1.7)
 		if ( jQuery.isArray( selectors ) ) {
-			var match, selector,
-				matches = {},
-				level = 1;
+			var level = 1;
 
-			if ( cur && selectors.length ) {
-				for ( i = 0, l = selectors.length; i < l; i++ ) {
-					selector = selectors[i];
+			while ( cur && cur.ownerDocument && cur !== context ) {
+				for ( i = 0; i < selectors.length; i++ ) {
 
-					if ( !matches[ selector ] ) {
-						matches[ selector ] = POS.test( selector ) ?
-							jQuery( selector, context || this.context ) :
-							selector;
+					if ( jQuery( cur ).is( selectors[ i ] ) ) {
+						ret.push({ selector: selectors[ i ], elem: cur, level: level });
 					}
 				}
 
-				while ( cur && cur.ownerDocument && cur !== context ) {
-					for ( selector in matches ) {
-						match = matches[ selector ];
-
-						if ( match.jquery ? match.index( cur ) > -1 : jQuery( cur ).is( match ) ) {
-							ret.push({ selector: selector, elem: cur, level: level });
-						}
-					}
-
-					cur = cur.parentNode;
-					level++;
-				}
+				cur = cur.parentNode;
+				level++;
 			}
 
 			return ret;
@@ -214,7 +204,7 @@ jQuery.each({
 		return jQuery.dir( elem, "previousSibling", until );
 	},
 	siblings: function( elem ) {
-		return jQuery.sibling( elem.parentNode.firstChild, elem );
+		return jQuery.sibling( ( elem.parentNode || {} ).firstChild, elem );
 	},
 	children: function( elem ) {
 		return jQuery.sibling( elem.firstChild );
@@ -226,12 +216,7 @@ jQuery.each({
 	}
 }, function( name, fn ) {
 	jQuery.fn[ name ] = function( until, selector ) {
-		var ret = jQuery.map( this, fn, until ),
-			// The variable 'args' was introduced in
-			// https://github.com/jquery/jquery/commit/52a0238
-			// to work around a bug in Chrome 10 (Dev) and should be removed when the bug is fixed.
-			// http://code.google.com/p/v8/issues/detail?id=1050
-			args = slice.call(arguments);
+		var ret = jQuery.map( this, fn, until );
 
 		if ( !runtil.test( name ) ) {
 			selector = until;
@@ -247,7 +232,7 @@ jQuery.each({
 			ret = ret.reverse();
 		}
 
-		return this.pushStack( ret, name, args.join(",") );
+		return this.pushStack( ret, name, slice.call( arguments ).join(",") );
 	};
 });
 
@@ -316,7 +301,7 @@ function winnow( elements, qualifier, keep ) {
 
 	} else if ( qualifier.nodeType ) {
 		return jQuery.grep(elements, function( elem, i ) {
-			return (elem === qualifier) === keep;
+			return ( elem === qualifier ) === keep;
 		});
 
 	} else if ( typeof qualifier === "string" ) {
@@ -332,7 +317,7 @@ function winnow( elements, qualifier, keep ) {
 	}
 
 	return jQuery.grep(elements, function( elem, i ) {
-		return (jQuery.inArray( elem, qualifier ) >= 0) === keep;
+		return ( jQuery.inArray( elem, qualifier ) >= 0 ) === keep;
 	});
 }
 
