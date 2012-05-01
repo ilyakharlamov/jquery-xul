@@ -28,7 +28,7 @@
 	</target>
 	<target name="sizzle-clone" unless="sizzle">
 		<exec executable="git" outputproperty="git-sizzle" >
-			<arg line="clone git://github.com/jeresig/sizzle.git src/sizzle" />
+			<arg line="clone git://github.com/jquery/sizzle.git src/sizzle" />
 		</exec>
 		<echo message="git clone sizzle: ${git-sizzle}" />
 	</target>

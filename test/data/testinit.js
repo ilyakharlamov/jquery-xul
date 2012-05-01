@@ -1,7 +1,20 @@
 var jQuery = this.jQuery || "jQuery", // For testing .noConflict()
 	$ = this.$ || "$",
 	originaljQuery = jQuery,
-	original$ = $;
+	original$ = $,
+	hasPHP = true,
+	amdDefined;
+
+/**
+ * Set up a mock AMD define function for testing AMD registration.
+ */
+function define(name, dependencies, callback) {
+	amdDefined = callback();
+}
+
+define.amd = {
+	jQuery: true
+};
 
 /**
  * Returns an array of elements with the given IDs, eg.
@@ -20,8 +33,7 @@ function q() {
 
 /**
  * Asserts that a select matches the given IDs * @example t("Check for something", "//[a]", ["foo", "baar"]);
- * @result returns true if "//[a]" return two elements with the IDs 'foo' and 'baa
-r'
+ * @result returns true if "//[a]" return two elements with the IDs 'foo' and 'baar'
  */
 function t(a,b,c) {
 	var f = jQuery(b).get(), s = "";
@@ -30,7 +42,21 @@ function t(a,b,c) {
 		s += (s && ",") + '"' + f[i].id + '"';
 	}
 
-	same(f, q.apply(q,c), a + " (" + b + ")");
+	deepEqual(f, q.apply(q,c), a + " (" + b + ")");
+}
+
+var fireNative;
+if ( document.createEvent ) {
+	fireNative = function( node, type ) {
+		var event = document.createEvent('HTMLEvents');
+		event.initEvent( type, true, true );
+		node.dispatchEvent( event );
+	};
+} else {
+	fireNative = function( node, type ) {
+		var event = document.createEventObject();
+		node.fireEvent( 'on' + type, event );
+	};
 }
 
 /**
@@ -77,20 +103,60 @@ function url(value) {
 		// Because QUnit doesn't have a mechanism for retrieving the number of expected assertions for a test,
 		// if we unconditionally assert any of these, the test will fail with too many assertions :|
 		if ( cacheLength !== oldCacheLength ) {
-			equals( cacheLength, oldCacheLength, "No unit tests leak memory in jQuery.cache" );
+			equal( cacheLength, oldCacheLength, "No unit tests leak memory in jQuery.cache" );
 			oldCacheLength = cacheLength;
 		}
 		if ( fragmentsLength !== oldFragmentsLength ) {
-			equals( fragmentsLength, oldFragmentsLength, "No unit tests leak memory in jQuery.fragments" );
+			equal( fragmentsLength, oldFragmentsLength, "No unit tests leak memory in jQuery.fragments" );
 			oldFragmentsLength = fragmentsLength;
 		}
 		if ( jQuery.timers.length !== oldTimersLength ) {
-			equals( jQuery.timers.length, oldTimersLength, "No timers are still running" );
+			equal( jQuery.timers.length, oldTimersLength, "No timers are still running" );
 			oldTimersLength = jQuery.timers.length;
 		}
 		if ( jQuery.active !== oldActive ) {
-			equals( jQuery.active, 0, "No AJAX requests are still active" );
+			equal( jQuery.active, 0, "No AJAX requests are still active" );
 			oldActive = jQuery.active;
 		}
-	}
+	};
+
+	this.testIframe = function( fileName, name, fn ) {
+
+		test(name, function() {
+			// pause execution for now
+			stop();
+
+			// load fixture in iframe
+			var iframe = loadFixture(),
+				win = iframe.contentWindow,
+				interval = setInterval( function() {
+					if ( win && win.jQuery && win.jQuery.isReady ) {
+						clearInterval( interval );
+						// continue
+						start();
+						// call actual tests passing the correct jQuery instance to use
+						fn.call( this, win.jQuery, win, win.document );
+						document.body.removeChild( iframe );
+						iframe = null;
+					}
+				}, 15 );
+		});
+
+		function loadFixture() {
+			var src = "./data/" + fileName + ".html?" + parseInt( Math.random()*1000, 10 ),
+				iframe = jQuery("<iframe />").css({
+					width: 500, height: 500, position: "absolute", top: -600, left: -600, visibility: "hidden"
+				}).appendTo("body")[0];
+			iframe.contentWindow.location = src;
+			return iframe;
+		}
+	};
 }());
+
+// Sandbox start for great justice
+(function() {
+	var oldStart = window.start;
+	window.start = function() {
+		oldStart();
+	};
+})();
